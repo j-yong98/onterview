@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  onterview-nginx:
+    image: nginx:latest
+    networks:
+      - onterview
+    restart: "always"
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - conf:/etc/nginx/conf.d
+      - vhost:/etc/nginx/vhost.d
+      - html:/var/www/html
+      - /etc/letsencrypt:/etc/letsencrypt
+
+  main-server:
+    image: ejoh/onterview-server
+    container_name: onterview-server
+    networks:
+      - onterview
+    restart: "always"
+    environment:
+      - TZ=Asia/Seoul
+    expose:
+      - 8081
+
+  file-server:
+    image: ejoh/onterview-file
+    container_name: onterview-file
+    networks:
+      - onterview
+    restart: "always"
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - /var/lib/file:/file
+    expose:
+      - 8082
+
+networks:
+  onterview:
+    external: true
+
+volumes:
+  conf:
+    name: conf
+    external: true
+  vhost:
+    name: vhost
+    external: true
+  html:
+    name: html
+    external: true
